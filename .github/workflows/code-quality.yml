@@ -1,0 +1,51 @@
+
+name: Code Quality Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  shellcheck:
+    name: Shell Script Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Check Shell Scripts
+        run: |
+          files=$(find . -type f -name "*.sh" \
+            -not -path "./.git/*")
+
+          if [ -z "$files" ]; then
+            echo "No shell scripts found. Skipping."
+          else
+            find . -type f -name "*.sh" \
+              -not -path "./.git/*" \
+              -print0 | xargs -0 shellcheck
+          fi
+
+  yaml-check:
+    name: YAML Syntax Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Validate YAML Files
+        run: |
+          python3 -m pip install --user yamllint
+          find . -type f \( -name "*.yml" -o -name "*.yaml" \) \
+            -not -path "./.git/*" \
+            -print0 | xargs -0 -r \
+            python3 -m yamllint -d relaxed
+            

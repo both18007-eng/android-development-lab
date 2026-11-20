@@ -1,0 +1,33 @@
+
+name: Android Development Lab CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  repository-check:
+    name: Repository Health Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Verify README
+        run: |
+          test -s README.md
+          echo "README.md exists and is not empty."
+
+      - name: Show Repository Structure
+        run: |
+          echo "Project files:"
+          find . -maxdepth 3 -type f \
+            -not -path './.git/*' | sort
+
+      - name: CI Completed
+        run: echo "Android Development Lab CI passed!"
+        
